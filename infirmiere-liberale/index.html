@@ -154,6 +154,7 @@ display:none;margin-top:24px;border-radius:12px;overflow:hidden;
 border:3px solid var(--bleu-nuit);
 }
 .borne.on{display:block;animation:pose .3s ease-out;}
+@keyframes pose{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 @media (prefers-reduced-motion: reduce){.borne.on{animation:none;}}
 .borne-tete{
 background:var(--bleu-nuit);color:#fff;text-align:center;padding:22px 16px 18px;
@@ -190,6 +191,9 @@ footer{
 border-top:1px solid var(--gris-bord);margin-top:64px;padding:24px 0 40px;
 font-size:.85rem;color:var(--gris-doux);
 }
+footer nav{margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px 18px;}
+footer nav a{font-weight:600;color:var(--bleu-route);text-decoration:none;}
+footer nav a:hover{text-decoration:underline;}
 .table-scroll{overflow-x:auto;}
 .fil{font-size:.88rem;margin:18px 0 0;}
 .fil a{color:var(--bleu-route);}
@@ -362,6 +366,12 @@ Véhicule 100 % électrique (majoration de 20 %)
 <p class="fil">← <a href="/">Calculateur d'indemnités kilométriques général (salariés, tous indépendants)</a></p>
 
 <footer>
+<nav>
+<a href="/a-propos/">À propos</a>
+<a href="/mentions-legales/">Mentions légales</a>
+<a href="/confidentialite/">Confidentialité</a>
+<a href="mailto:contact@calcul-kilometrique.fr">Contact</a>
+</nav>
 <p>Cet outil fournit une estimation à titre indicatif, basée sur les tarifs conventionnels NGAP et le barème kilométrique fiscal en vigueur en 2026. Il ne constitue pas un conseil fiscal ou de facturation. Référez-vous à ameli.fr, impots.gouv.fr ou à un professionnel pour votre situation personnelle.</p>
 </footer>
 </div>
