@@ -40,9 +40,24 @@ a:hover{color:var(--bleu-nuit);}
 footer{border-top:1px solid var(--gris-bord);margin-top:20px;padding:24px 0 40px;font-size:.85rem;color:var(--gris-doux);}
 footer nav{margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px 18px;}
 footer nav a{font-weight:600;}
+.topnav{background:var(--bleu-nuit);}
+.topnav .wrap{display:flex;flex-wrap:wrap;gap:6px 20px;padding-top:13px;padding-bottom:13px;}
+.topnav a{font-family:'Barlow Condensed',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.07em;font-size:.8rem;color:#AEBBD4;text-decoration:none;transition:color .15s;}
+.topnav a:hover{color:#fff;}
+.topnav a[aria-current="page"]{color:var(--jaune-signal);}
 </style>
 </head>
 <body>
+<nav class="topnav" aria-label="Nos calculateurs">
+<div class="wrap">
+<a href="/">Barème général</a>
+<a href="/infirmiere-liberale/">Infirmière libérale</a>
+<a href="/salarie-frais-reels/">Salarié</a>
+<a href="/indemnite-kilometrique-employeur/">Employeur</a>
+<a href="/agent-commercial/">Agent commercial</a>
+</div>
+</nav>
+
 <header>
 <div class="wrap">
 <p class="eyebrow">calcul-kilometrique.fr</p>
