@@ -88,7 +88,7 @@ color:var(--encre);
 background:var(--blanc-marquage);
 line-height:1.6;
 }
-.wrap{max-width:820px;margin:0 auto;padding:0 20px;}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px;}
 
 /* ---- Header ---- */
 header{
@@ -209,6 +209,14 @@ footer nav{margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px 18px;}
 footer nav a{font-weight:600;color:var(--bleu-route);text-decoration:none;}
 footer nav a:hover{text-decoration:underline;}
 .table-scroll{overflow-x:auto;}
+.calc-grid{display:grid;grid-template-columns:1fr;gap:14px 28px;}
+.calc-inputs .field{margin-bottom:18px;}
+.calc-result .borne{margin-top:0;}
+@media (min-width:720px){
+.calc-grid{grid-template-columns:1.15fr 1fr;align-items:start;}
+.calc-result{position:sticky;top:16px;}
+}
+main{max-width:820px;margin-left:auto;margin-right:auto;}
 .topnav{background:var(--bleu-nuit);}
 .topnav .wrap{display:flex;flex-wrap:wrap;gap:6px 20px;padding-top:13px;padding-bottom:13px;}
 .topnav a{font-family:'Barlow Condensed',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.07em;font-size:.8rem;color:#AEBBD4;text-decoration:none;transition:color .15s;}
@@ -238,6 +246,8 @@ footer nav a:hover{text-decoration:underline;}
 
 <div class="wrap">
 <form class="calc" id="form" autocomplete="off">
+<div class="calc-grid">
+<div class="calc-inputs">
 <fieldset>
 <legend>Type de véhicule</legend>
 <div class="seg" id="segVehicule">
@@ -266,14 +276,17 @@ footer nav a:hover{text-decoration:underline;}
 Véhicule 100 % électrique (majoration de 20 %)
 </label>
 
-<button type="submit" class="go">Calculer mes frais kilométriques</button>
 
-<div class="borne" id="borne" aria-live="polite">
+</div>
+<div class="calc-result">
+<div class="borne on" id="borne" aria-live="polite">
 <div class="borne-tete">
 <div class="montant"><span id="resMontant">0</span> <small>€</small></div>
 <div class="quoi">Frais kilométriques déductibles - déclaration contrôlée (2035)</div>
 </div>
-<div class="borne-corps" id="resDetail"></div>
+<div class="borne-corps" id="resDetail"><span class="note">Renseignez vos kilomètres : le montant se met à jour automatiquement.</span></div>
+</div>
+</div>
 </div>
 </form>
 
@@ -452,7 +465,7 @@ champCV.style.display = (v === 'cyclo') ? 'none' : '';
 
 var radios = document.querySelectorAll('input[name=vehicule]');
 for (var i = 0; i < radios.length; i++){
-radios[i].addEventListener('change', majCV);
+radios[i].addEventListener('change', function(){ majCV(); calcule(); });
 }
 majCV();
 
@@ -460,10 +473,13 @@ function fmt(n){
 return n.toLocaleString('fr-FR', {minimumFractionDigits: 0, maximumFractionDigits: 2});
 }
 
-form.addEventListener('submit', function(e){
-e.preventDefault();
+function calcule(){
 var km = parseInt(kmInput.value, 10);
-if (!km || km < 1){ kmInput.focus(); return; }
+if (!km || km < 1){
+resMontant.textContent = '0';
+resDetail.innerHTML = '<span class="note">Renseignez vos kilomètres : le montant se met à jour automatiquement.</span>';
+return;
+}
 
 var v = vehiculeActuel();
 var b = BAREME[v];
@@ -485,9 +501,13 @@ detail += '<br>Majoration véhicule électrique : ' + fmt(base) + ' € × 1,20 
 }
 detail += '<br><span class="note">Déductible uniquement en déclaration contrôlée (2035). Ajoutez vos autres charges puis comparez à l\'abattement de 34 % du micro-BNC.</span>';
 resDetail.innerHTML = detail;
+}
 
-borne.classList.add('on');
-});
+kmInput.addEventListener('input', calcule);
+selCV.addEventListener('change', calcule);
+elec.addEventListener('change', calcule);
+form.addEventListener('submit', function(e){ e.preventDefault(); calcule(); });
+calcule();
 })();
 </script>
 </body>

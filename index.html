@@ -105,7 +105,7 @@ color:var(--encre);
 background:var(--blanc-marquage);
 line-height:1.6;
 }
-.wrap{max-width:820px;margin:0 auto;padding:0 20px;}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px;}
 
 /* ---- Header ---- */
 header{
@@ -226,6 +226,14 @@ footer nav{margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px 18px;}
 footer nav a{font-weight:600;color:var(--bleu-route);text-decoration:none;}
 footer nav a:hover{text-decoration:underline;}
 .table-scroll{overflow-x:auto;}
+.calc-grid{display:grid;grid-template-columns:1fr;gap:14px 28px;}
+.calc-inputs .field{margin-bottom:18px;}
+.calc-result .borne{margin-top:0;}
+@media (min-width:720px){
+.calc-grid{grid-template-columns:1.15fr 1fr;align-items:start;}
+.calc-result{position:sticky;top:16px;}
+}
+main{max-width:820px;margin-left:auto;margin-right:auto;}
 .topnav{background:var(--bleu-nuit);}
 .topnav .wrap{display:flex;flex-wrap:wrap;gap:6px 20px;padding-top:13px;padding-bottom:13px;}
 .topnav a{font-family:'Barlow Condensed',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.07em;font-size:.8rem;color:#AEBBD4;text-decoration:none;transition:color .15s;}
@@ -255,6 +263,8 @@ footer nav a:hover{text-decoration:underline;}
 
 <div class="wrap">
 <form class="calc" id="form" autocomplete="off">
+<div class="calc-grid">
+<div class="calc-inputs">
 <fieldset>
 <legend>Type de véhicule</legend>
 <div class="seg" id="segVehicule">
@@ -267,30 +277,30 @@ footer nav a:hover{text-decoration:underline;}
 </div>
 </fieldset>
 
-<div class="row">
 <div class="field" id="champCV">
 <label class="lbl" for="cv">Puissance fiscale (case P.6 de la carte grise)</label>
 <select id="cv"></select>
 </div>
 <div class="field">
 <label class="lbl" for="km">Kilomètres professionnels parcourus en 2025</label>
-<input type="number" id="km" min="1" max="200000" step="1" placeholder="Ex. 8 500" inputmode="numeric" required>
-</div>
+<input type="number" id="km" min="1" max="200000" step="1" placeholder="Ex. 8 500" inputmode="numeric">
 </div>
 
 <label class="check">
 <input type="checkbox" id="elec">
 Véhicule 100 % électrique (majoration de 20 %)
 </label>
+</div>
 
-<button type="submit" class="go">Calculer mon indemnité</button>
-
-<div class="borne" id="borne" aria-live="polite">
+<div class="calc-result">
+<div class="borne on" id="borne" aria-live="polite">
 <div class="borne-tete">
 <div class="montant"><span id="resMontant">0</span> <small>€</small></div>
 <div class="quoi">Montant déductible - frais réels 2026</div>
 </div>
-<div class="borne-corps" id="resDetail"></div>
+<div class="borne-corps" id="resDetail"><span class="note">Renseignez vos kilomètres : le montant se met à jour automatiquement.</span></div>
+</div>
+</div>
 </div>
 </form>
 
@@ -466,23 +476,19 @@ selCV.appendChild(o);
 champCV.style.display = (v === 'cyclo') ? 'none' : '';
 }
 
-var radios = document.querySelectorAll('input[name=vehicule]');
-for (var i = 0; i < radios.length; i++){
-radios[i].addEventListener('change', majCV);
-}
-majCV();
-
 function fmt(n){
 return n.toLocaleString('fr-FR', {minimumFractionDigits: 0, maximumFractionDigits: 2});
 }
 
-form.addEventListener('submit', function(e){
-e.preventDefault();
+function calcule(){
 var km = parseInt(kmInput.value, 10);
-if (!km || km < 1){ kmInput.focus(); return; }
-
 var v = vehiculeActuel();
 var b = BAREME[v];
+if (!km || km < 1){
+resMontant.textContent = '0';
+resDetail.innerHTML = '<span class="note">Renseignez vos kilomètres : le montant se met à jour automatiquement.</span>';
+return;
+}
 var idx = (v === 'cyclo') ? 0 : parseInt(selCV.value, 10);
 var tranche = (km <= b.seuils[0]) ? 0 : (km <= b.seuils[1]) ? 1 : 2;
 var coef = b.cv[idx].t[tranche][0];
@@ -501,9 +507,19 @@ detail += '<br>Majoration véhicule électrique : ' + fmt(base) + ' € × 1,20 
 }
 detail += '<br><span class="note">Montant à reporter dans la rubrique « frais réels » de votre déclaration, avec vos autres frais professionnels.</span>';
 resDetail.innerHTML = detail;
+}
 
-borne.classList.add('on');
-});
+var radios = document.querySelectorAll('input[name=vehicule]');
+for (var i = 0; i < radios.length; i++){
+radios[i].addEventListener('change', function(){ majCV(); calcule(); });
+}
+majCV();
+
+kmInput.addEventListener('input', calcule);
+selCV.addEventListener('change', calcule);
+elec.addEventListener('change', calcule);
+form.addEventListener('submit', function(e){ e.preventDefault(); calcule(); });
+calcule();
 })();
 </script>
 </body>

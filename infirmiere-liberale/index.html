@@ -88,7 +88,7 @@ color:var(--encre);
 background:var(--blanc-marquage);
 line-height:1.6;
 }
-.wrap{max-width:820px;margin:0 auto;padding:0 20px;}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px;}
 header{
 background:var(--bleu-nuit);
 color:#fff;
@@ -205,6 +205,7 @@ footer nav a:hover{text-decoration:underline;}
 .table-scroll{overflow-x:auto;}
 .fil{font-size:.88rem;margin:18px 0 0;}
 .fil a{color:var(--bleu-route);}
+main{max-width:820px;margin-left:auto;margin-right:auto;}
 .topnav{background:var(--bleu-nuit);}
 .topnav .wrap{display:flex;flex-wrap:wrap;gap:6px 20px;padding-top:13px;padding-bottom:13px;}
 .topnav a{font-family:'Barlow Condensed',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.07em;font-size:.8rem;color:#AEBBD4;text-decoration:none;transition:color .15s;}
@@ -262,14 +263,12 @@ footer nav a:hover{text-decoration:underline;}
 Inclure l'IFD (indemnité forfaitaire de déplacement) : 2,75 € par déplacement
 </label>
 
-<button type="submit" class="go">Calculer mes IK</button>
-
-<div class="borne" id="borneIK" aria-live="polite">
+<div class="borne on" id="borneIK" aria-live="polite">
 <div class="borne-tete">
 <div class="montant"><span id="resIK">0</span> <small>€</small></div>
 <div class="quoi" id="quoiIK">IK + IFD par déplacement</div>
 </div>
-<div class="borne-corps" id="detIK"></div>
+<div class="borne-corps" id="detIK"><span class="note">Renseignez la distance : le calcul se met à jour automatiquement.</span></div>
 </div>
 </form>
 
@@ -297,14 +296,12 @@ Inclure l'IFD (indemnité forfaitaire de déplacement) : 2,75 € par déplaceme
 Véhicule 100 % électrique (majoration de 20 %)
 </label>
 
-<button type="submit" class="go">Calculer ma déduction</button>
-
-<div class="borne" id="borneFisc" aria-live="polite">
+<div class="borne on" id="borneFisc" aria-live="polite">
 <div class="borne-tete">
 <div class="montant"><span id="resFisc">0</span> <small>€</small></div>
 <div class="quoi">Frais déductibles - déclaration 2035 / 2026</div>
 </div>
-<div class="borne-corps" id="detFisc"></div>
+<div class="borne-corps" id="detFisc"><span class="note">Renseignez vos kilomètres : le calcul se met à jour automatiquement.</span></div>
 </div>
 </form>
 
@@ -421,10 +418,14 @@ function fmt(n){
 return n.toLocaleString('fr-FR', {minimumFractionDigits: 0, maximumFractionDigits: 2});
 }
 
-formIK.addEventListener('submit', function(e){
-e.preventDefault();
+function calcIK(){
 var d = parseFloat(distInput.value);
-if (isNaN(d) || d < 0){ distInput.focus(); return; }
+if (isNaN(d) || d < 0){
+resIK.textContent = '0';
+quoiIK.textContent = 'IK + IFD par déplacement';
+detIK.innerHTML = '<span class="note">Renseignez la distance : le calcul se met à jour automatiquement.</span>';
+return;
+}
 
 var z = ZONES[document.querySelector('input[name=zone]:checked').value];
 var visites = parseInt(visitesInput.value, 10);
@@ -459,8 +460,13 @@ quoiIK.textContent = avecIFD ? 'IK + IFD par déplacement' : 'IK par déplacemen
 detail += '<br><span class="note">Rappel : plafond journalier tous patients confondus (taux plein jusqu’à 299 km/jour, −50 % de 300 à 399 km, non pris en charge au-delà de 400 km).</span>';
 
 detIK.innerHTML = detail;
-borneIK.classList.add('on');
-});
+}
+distInput.addEventListener('input', calcIK);
+visitesInput.addEventListener('input', calcIK);
+ifdCheck.addEventListener('change', calcIK);
+var zradios = document.querySelectorAll('input[name=zone]');
+for (var zi = 0; zi < zradios.length; zi++){ zradios[zi].addEventListener('change', calcIK); }
+calcIK();
 
 /* ---- Calculateur 2 : barème fiscal (voitures) ---- */
 var BAREME_AUTO = [
@@ -480,10 +486,13 @@ var borneFisc = document.getElementById('borneFisc');
 var resFisc = document.getElementById('resFisc');
 var detFisc = document.getElementById('detFisc');
 
-formFisc.addEventListener('submit', function(e){
-e.preventDefault();
+function calcFisc(){
 var km = parseInt(kmInput.value, 10);
-if (!km || km < 1){ kmInput.focus(); return; }
+if (!km || km < 1){
+resFisc.textContent = '0';
+detFisc.innerHTML = '<span class="note">Renseignez vos kilomètres : le calcul se met à jour automatiquement.</span>';
+return;
+}
 
 var idx = parseInt(selCV.value, 10);
 var tranche = (km <= SEUILS[0]) ? 0 : (km <= SEUILS[1]) ? 1 : 2;
@@ -503,9 +512,11 @@ detail += '<br>Majoration véhicule électrique : ' + fmt(base) + ' € × 1,20 
 }
 detail += '<br><span class="note">Montant à porter en charges de véhicule sur votre déclaration 2035 (option barème kilométrique), en régime de déclaration contrôlée.</span>';
 detFisc.innerHTML = detail;
-
-borneFisc.classList.add('on');
-});
+}
+kmInput.addEventListener('input', calcFisc);
+selCV.addEventListener('change', calcFisc);
+elec.addEventListener('change', calcFisc);
+calcFisc();
 })();
 </script>
 </body>
